@@ -8,8 +8,8 @@ const serviceWorker = fs.readFileSync(new URL("../sw.js", import.meta.url), "utf
 const packageJson = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
 
-assert.match(html, /signal-system\.css\?v=20260722-2/);
-assert.match(html, /signal-field\.js\?v=20260722-2/);
+assert.match(html, /signal-system\.css\?v=20260722-3/);
+assert.match(html, /signal-field\.js\?v=20260722-3/);
 assert.doesNotMatch(html, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.doesNotMatch(serviceWorker, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.equal(packageJson.dependencies?.gsap, undefined);
@@ -19,6 +19,9 @@ assert.equal(manifest.background_color, "#061210");
 
 assert.match(css, /--green:\s*#42f5b3/i);
 assert.match(css, /--red:\s*#ff746c/i);
+assert.match(css, /@media \(prefers-color-scheme: light\)/);
+assert.match(css, /--green:\s*#087a55/i);
+assert.match(css, /--red:\s*#b83e38/i);
 assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(css, /:focus-visible/);
 assert.match(css, /\.shell\s*\{/);
@@ -26,6 +29,8 @@ assert.match(css, /\.rb-reveal/);
 assert.match(css, /--spot-x/);
 
 assert.match(js, /prefers-reduced-motion/);
+assert.match(js, /prefers-color-scheme: dark/);
+assert.match(js, /syncThemePalette/);
 assert.match(js, /devicePixelRatio/);
 assert.match(js, /IntersectionObserver/);
 assert.match(js, /MutationObserver/);

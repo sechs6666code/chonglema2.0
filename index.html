@@ -3,11 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#061210" />
+    <meta name="theme-color" content="#f3f8f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#061210" media="(prefers-color-scheme: dark)" />
     <meta name="description" content="冲了吗？一个私密、克制的每日自律记录仪。" />
     <meta name="application-name" content="冲了吗" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta id="apple-status-bar-style" name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <script>
+      (() => {
+        const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const statusBar = document.getElementById("apple-status-bar-style");
+        const syncStatusBar = () => statusBar.setAttribute("content", scheme.matches ? "black-translucent" : "default");
+        syncStatusBar();
+        scheme.addEventListener?.("change", syncStatusBar);
+      })();
+    </script>
     <meta name="apple-mobile-web-app-title" content="冲了吗" />
     <title>冲了吗 · 每日打卡</title>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -17,14 +27,14 @@
     <link rel="stylesheet" href="./assets/recovery-module.css?v=20260715-2">
     <link rel="stylesheet" href="./assets/leaderboard-module.css?v=20260718-4">
     <link rel="stylesheet" href="./assets/pwa-module.css?v=20260717-1">
-    <link rel="stylesheet" href="./assets/signal-system.css?v=20260722-2">
+    <link rel="stylesheet" href="./assets/signal-system.css?v=20260722-3">
     <script defer src="./assets/refine-motion.js?v=20260718-1"></script>
     <script defer src="./assets/recovery-module.js?v=20260715-2"></script>
     <script src="./assets/qrcode-vendor.min.js?v=1"></script>
     <script src="./assets/leaderboard-config.js?v=20260715-6"></script>
     <script type="module" src="./assets/leaderboard-module.js?v=20260718-4"></script>
     <script defer src="./assets/pwa-module.js?v=20260717-2"></script>
-    <script defer src="./assets/signal-field.js?v=20260722-2"></script>
+    <script defer src="./assets/signal-field.js?v=20260722-3"></script>
   </head>
   <body>
     <!--

@@ -7,6 +7,10 @@
     matches: false,
     addEventListener() {},
   };
+  const darkScheme = window.matchMedia?.("(prefers-color-scheme: dark)") || {
+    matches: true,
+    addEventListener() {},
+  };
   const finePointer = window.matchMedia?.("(hover: hover) and (pointer: fine)") || { matches: false };
   const palette = {
     mint: [66, 245, 179],
@@ -55,6 +59,18 @@
 
   const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
   const rgba = (color, alpha) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+  const parseHexColor = (value, fallback) => {
+    const hex = String(value || "").trim().match(/^#([0-9a-f]{6})$/i)?.[1];
+    if (!hex) return fallback;
+    return [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
+  };
+
+  const syncThemePalette = () => {
+    const styles = window.getComputedStyle(html);
+    palette.mint = parseHexColor(styles.getPropertyValue("--green"), darkScheme.matches ? [66, 245, 179] : [8, 122, 85]);
+    palette.coral = parseHexColor(styles.getPropertyValue("--red"), darkScheme.matches ? [255, 116, 108] : [184, 62, 56]);
+    html.dataset.colorScheme = darkScheme.matches ? "dark" : "light";
+  };
 
   const resizeCanvas = (canvas, context) => {
     if (!context) return;
@@ -133,7 +149,7 @@
 
       effectsContext.save();
       effectsContext.translate(burst.x, burst.y);
-      effectsContext.globalCompositeOperation = "lighter";
+      effectsContext.globalCompositeOperation = darkScheme.matches ? "lighter" : "source-over";
 
       const ringRadius = 9 + eased * burst.radius;
       effectsContext.beginPath();
@@ -389,6 +405,12 @@
     }
   });
 
+  darkScheme.addEventListener?.("change", () => {
+    syncThemePalette();
+    drawFrame(performance.now(), true);
+  });
+
+  syncThemePalette();
   resize();
   scan();
   if (reducedMotion.matches) drawFrame(performance.now(), true);
