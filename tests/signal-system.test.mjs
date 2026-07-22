@@ -8,8 +8,8 @@ const serviceWorker = fs.readFileSync(new URL("../sw.js", import.meta.url), "utf
 const packageJson = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
 
-assert.match(html, /flight-recorder\.css\?v=20260722-9/);
-assert.match(html, /flight-recorder\.js\?v=20260722-9/);
+assert.match(html, /flight-recorder\.css\?v=20260722-10/);
+assert.match(html, /flight-recorder\.js\?v=20260722-10/);
 assert.doesNotMatch(html, /signal-system\.css|signal-field\.js/);
 assert.doesNotMatch(html, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.doesNotMatch(serviceWorker, /signal-system\.css|signal-field\.js/);

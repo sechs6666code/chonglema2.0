@@ -58,6 +58,8 @@ assert.match(css, /min-height:\s*44px/);
 assert.match(css, /\.month-switcher button\s*\{[^}]*min-height:\s*44px/s);
 assert.match(css, /\.pwa-time-field\s*>\s*span\s*\{[^}]*white-space:\s*nowrap/s);
 assert.match(css, /\.leaderboard-podium-horizon[\s\S]*display:\s*none\s*!important/);
+assert.match(css, /\.leaderboard-profile-card\s*>\s*\.leaderboard-section-title\s+small/);
+assert.match(source, /前 100 名/);
 assert.match(css, /prefers-color-scheme: light/);
 assert.match(css, /prefers-reduced-transparency: reduce/);
 assert.match(css, /prefers-reduced-motion: reduce/);

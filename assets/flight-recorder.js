@@ -155,6 +155,11 @@
     main.querySelector(".month-summary")?.setAttribute("role", "status");
     main.querySelector(".history")?.setAttribute("aria-label", "打卡记录");
     main.querySelector(".stats")?.setAttribute("aria-label", "趋势总览");
+
+    const rankingFooter = document.querySelector(".leaderboard-board-card > footer");
+    if (rankingFooter?.textContent?.includes("TOP 100")) {
+      rankingFooter.textContent = "前 100 名 · 数据来自用户本机历史记录汇总，采用荣誉制";
+    }
   };
 
   const queueScan = () => {

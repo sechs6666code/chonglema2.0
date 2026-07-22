@@ -1269,8 +1269,8 @@ body:has(.leaderboard-overlay.is-open, .pwa-reminder-overlay.is-open, .history-s
 }
 
 .leaderboard-header > div > small,
-.leaderboard-profile-card > header small,
-.leaderboard-milestones > header small,
+.leaderboard-profile-card > .leaderboard-section-title small,
+.leaderboard-milestones > .leaderboard-section-title small,
 .pwa-reminder-header > div > small {
   display: none;
 }
