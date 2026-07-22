@@ -1,0 +1,210 @@
+import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
+
+const dom = new JSDOM(`<!doctype html><html><body>
+  <div id="root"><main class="shell">
+    <header class="topbar"><div class="menu-wrap"></div></header>
+    <section class="hero"></section>
+    <section class="stats"></section>
+    <footer><span class="lock">⌁</span>记录只保存在当前设备</footer>
+  </main></div>
+</body></html>`, {
+  url: "https://sechs6666code.github.io/chonglema/",
+  pretendToBeVisual: true,
+});
+
+const { window } = dom;
+Object.defineProperties(globalThis, {
+  window: { value: window, configurable: true },
+  document: { value: window.document, configurable: true },
+  localStorage: { value: window.localStorage, configurable: true },
+  navigator: { value: window.navigator, configurable: true },
+  MutationObserver: { value: window.MutationObserver, configurable: true },
+  requestAnimationFrame: { value: window.requestAnimationFrame.bind(window), configurable: true },
+});
+const vibrationCalls = [];
+window.navigator.vibrate = (pattern) => {
+  vibrationCalls.push(pattern);
+  return true;
+};
+const boardTransitionCalls = [];
+window.Element.prototype.animate = function animate(keyframes, options) {
+  const call = { target: this, keyframes, options, cancelled: false };
+  boardTransitionCalls.push(call);
+  return {
+    finished: Promise.resolve(),
+    cancel() { call.cancelled = true; },
+  };
+};
+window.QRCode = {
+  toCanvas: async (canvas, value) => { canvas.dataset.recoveryCode = value; },
+};
+let copiedRecoveryCode = "";
+Object.defineProperty(window.navigator, "clipboard", {
+  value: { writeText: async (value) => { copiedRecoveryCode = value; } },
+  configurable: true,
+});
+window.localStorage.setItem("did-you-v1", JSON.stringify({
+  "2026-07-15": "no",
+  "2026-07-14": "no",
+  "2026-07-13": "yes",
+  "2026-07-12": "yes",
+}));
+window.CHONGLEMA_LEADERBOARD_API = "https://leaderboard.example.test";
+
+let savedPayload = null;
+let published = false;
+let removed = false;
+const mockFetch = async (url, options = {}) => {
+  if (options.method === "POST") {
+    savedPayload = JSON.parse(options.body);
+    published = true;
+    return Response.json({ profile: savedPayload });
+  }
+  if (options.method === "DELETE") {
+    const payload = JSON.parse(options.body);
+    assert.equal(payload.ownerToken, savedPayload.ownerToken);
+    published = false;
+    removed = true;
+    return Response.json({ deleted: true });
+  }
+  const ninja = published
+    ? [
+        { publicId: savedPayload.publicId, days: savedPayload.ninjaDays, rank: 1, updatedAt: new Date().toISOString() },
+        { publicId: "稳住一号", days: Math.max(0, savedPayload.ninjaDays - 1), rank: 2, updatedAt: new Date().toISOString() },
+        { publicId: "夜行者", days: Math.max(0, savedPayload.ninjaDays - 2), rank: 3, updatedAt: new Date().toISOString() },
+      ]
+    : [];
+  const rush = published
+    ? [
+        { publicId: savedPayload.publicId, days: savedPayload.rushDays, rank: 1, updatedAt: new Date().toISOString() },
+        { publicId: "火焰二号", days: Math.max(0, savedPayload.rushDays - 1), rank: 2, updatedAt: new Date().toISOString() },
+        { publicId: "赤色闪电", days: Math.max(0, savedPayload.rushDays - 2), rank: 3, updatedAt: new Date().toISOString() },
+      ]
+    : [];
+  return Response.json({ ninja, rush, generatedAt: new Date().toISOString() });
+};
+Object.defineProperty(globalThis, "fetch", { value: mockFetch, configurable: true });
+window.fetch = mockFetch;
+
+await import(new URL(`../assets/leaderboard-module.js?test=${Date.now()}`, import.meta.url));
+await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+const trigger = window.document.querySelector(".leaderboard-trigger");
+assert.ok(trigger, "the leaderboard trigger should mount in the top bar");
+const inlineEntry = window.document.querySelector(".leaderboard-inline-entry");
+const stats = window.document.querySelector(".stats");
+assert.ok(inlineEntry, "a prominent leaderboard entry should mount in the main flow");
+assert.equal(inlineEntry.nextElementSibling, stats, "the main entry should sit directly above the stats");
+assert.match(inlineEntry.getAttribute("aria-label"), /历史最长忍住 2 天/);
+assert.match(inlineEntry.getAttribute("aria-label"), /历史最长连冲 2 天/);
+assert.match(inlineEntry.textContent, /双榜排行/);
+assert.match(inlineEntry.textContent, /忍住/);
+assert.match(inlineEntry.textContent, /连冲/);
+assert.match(window.document.querySelector(".shell > footer").textContent, /完整记录默认留在本机/);
+assert.match(window.document.querySelector(".shell > footer").textContent, /仅同步 ID 与历史最长天数/);
+
+inlineEntry.remove();
+await new Promise((resolve) => window.setTimeout(resolve, 25));
+assert.equal(inlineEntry.nextElementSibling, stats, "the main entry should remount after a React-style rerender");
+
+inlineEntry.click();
+await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+const overlay = window.document.querySelector("#leaderboard-dialog");
+assert.equal(overlay.hidden, false, "clicking the trigger should open the leaderboard dialog");
+assert.equal(
+  overlay.querySelector(".leaderboard-local-scores").nextElementSibling,
+  overlay.querySelector(".leaderboard-board-card"),
+  "the leaderboard should follow the local score summary",
+);
+assert.equal(
+  overlay.querySelector(".leaderboard-board-card").nextElementSibling,
+  overlay.querySelector(".leaderboard-profile-card"),
+  "the profile controls should appear before milestones",
+);
+assert.equal(
+  overlay.querySelector(".leaderboard-profile-card").nextElementSibling,
+  overlay.querySelector(".leaderboard-milestones"),
+  "milestones should follow the profile controls",
+);
+assert.equal(
+  overlay.querySelector("[data-leaderboard-profile-jump]").parentElement,
+  overlay.querySelector(".leaderboard-panel"),
+  "the mobile participation action should stay fixed outside the scrolling content",
+);
+let profileJumped = false;
+overlay.querySelector(".leaderboard-profile-card").scrollIntoView = () => { profileJumped = true; };
+overlay.querySelector("[data-leaderboard-profile-jump]").click();
+assert.equal(profileJumped, true, "the sticky participation action should reveal profile controls");
+const input = overlay.querySelector(".leaderboard-id-field input");
+input.value = "忍者007";
+input.dispatchEvent(new window.Event("input", { bubbles: true }));
+overlay.querySelector('[data-visibility="public"]').click();
+overlay.querySelector(".leaderboard-save").click();
+await new Promise((resolve) => window.setTimeout(resolve, 80));
+
+assert.ok(savedPayload, "saving a public profile should call the shared API");
+assert.equal(savedPayload.publicId, "忍者007");
+assert.equal(savedPayload.isPublic, true);
+assert.equal(savedPayload.ninjaDays, 2);
+assert.equal(savedPayload.rushDays, 2, "historical longest streaks should let one profile join both boards");
+assert.equal(typeof savedPayload.ownerToken, "string");
+assert.ok(savedPayload.ownerToken.length >= 24);
+assert.match(overlay.textContent, /#1/);
+assert.match(overlay.textContent, /忍者007/);
+assert.ok(overlay.querySelector(".leaderboard-podium-scene"), "the top three should render on a dedicated award stage");
+assert.equal(overlay.querySelectorAll(".leaderboard-podium-card").length, 3);
+assert.equal(overlay.querySelector(".leaderboard-podium").dataset.podiumCount, "3");
+assert.ok(overlay.querySelector(".leaderboard-podium-horizon"));
+assert.match(overlay.querySelector('.leaderboard-podium-card[data-podium-rank="1"]').textContent, /冠军/);
+assert.ok(overlay.querySelector('.leaderboard-podium-card[data-podium-rank="1"] .leaderboard-podium-crown'));
+assert.ok(overlay.querySelector('.leaderboard-podium-card[data-podium-rank="1"] .leaderboard-podium-plinth'));
+overlay.querySelector('[data-tab="rush"]').click();
+assert.match(overlay.querySelector("[data-leaderboard-board-label]").textContent, /历史最长连冲/);
+assert.match(overlay.querySelector("[data-leaderboard-my-rank]").textContent, /#1/);
+overlay.querySelector('[data-tab="ninja"]').click();
+assert.equal(boardTransitionCalls.length, 2);
+assert.match(boardTransitionCalls[0].keyframes[0].boxShadow, /255, 116, 108/);
+assert.match(boardTransitionCalls[1].keyframes[0].boxShadow, /66, 245, 179/);
+assert.equal(boardTransitionCalls[0].options.duration, 420);
+assert.deepEqual(vibrationCalls.at(-1), [6, 14, 10]);
+assert.equal(overlay.querySelectorAll(".leaderboard-badge").length, 10, "both streak types should render five milestone badges");
+
+overlay.querySelector("[data-recovery-copy]").click();
+await new Promise((resolve) => window.setTimeout(resolve, 10));
+assert.match(copiedRecoveryCode, /^CLM1\./, "the recovery action should copy a portable recovery code");
+overlay.querySelector("[data-recovery-qr]").click();
+await new Promise((resolve) => window.setTimeout(resolve, 10));
+assert.equal(overlay.querySelector("[data-recovery-qr-box]").hidden, false);
+assert.match(overlay.querySelector("[data-recovery-qr-box] canvas").dataset.recoveryCode, /^CLM1\./);
+assert.ok(overlay.querySelector("[data-recovery-download]"));
+assert.ok(overlay.querySelector("[data-recovery-file]"));
+overlay.querySelector("[data-recovery-open]").click();
+const recoveryInput = overlay.querySelector("#leaderboard-recovery-code");
+recoveryInput.value = copiedRecoveryCode;
+overlay.querySelector("[data-recovery-verify]").click();
+assert.equal(overlay.querySelector(".leaderboard-recovery-candidate").hidden, false);
+assert.match(overlay.querySelector(".leaderboard-recovery-candidate").textContent, /忍者007/);
+
+window.localStorage.setItem("chonglema-leaderboard-rank-snapshot-v1", JSON.stringify({
+  identity: "忍者007",
+  date: "2026-07-14",
+  previous: { ninja: null, rush: null },
+  current: { ninja: 3, rush: null },
+}));
+overlay.querySelector(".leaderboard-refresh").click();
+await new Promise((resolve) => window.setTimeout(resolve, 30));
+assert.match(overlay.querySelector("[data-leaderboard-rank-insight]").textContent, /今日上升 2 名/);
+
+overlay.querySelector('[data-visibility="private"]').click();
+overlay.querySelector(".leaderboard-save").click();
+await new Promise((resolve) => window.setTimeout(resolve, 80));
+assert.equal(removed, true, "switching to private should delete the shared profile");
+assert.match(overlay.textContent, /默认留在本机/);
+
+overlay.querySelector(".leaderboard-close").click();
+assert.equal(window.document.activeElement, inlineEntry, "closing the dialog should restore focus to its opener");
+
+dom.window.close();
+console.log("leaderboard module interaction tests passed");
