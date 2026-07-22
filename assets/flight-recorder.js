@@ -7,18 +7,11 @@
     addEventListener() {},
   };
   const decorated = new WeakSet();
-  const observedZones = new WeakSet();
-  const zoneTargets = new Map();
+  const observedSections = new WeakSet();
+  const sectionRoutes = new Map();
   let dock = null;
   let dockButtons = [];
   let scanQueued = false;
-
-  const icons = {
-    today: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>',
-    trend: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17 9 12l3 3 8-9"/><path d="M16 6h4v4"/></svg>',
-    recovery: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11Z"/><path d="M9 15c.7 1.4 1.8 2 3.3 2"/></svg>',
-    history: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"/><path d="M5 10h14M10 5v14"/></svg>',
-  };
 
   const routes = [
     { key: "today", label: "今天", selector: "#top" },
@@ -40,16 +33,15 @@
   };
 
   const createDock = () => {
-    if (dock || document.querySelector(".flight-dock")) return;
+    if (dock || document.querySelector(".quiet-dock")) return;
     dock = document.createElement("nav");
-    dock.className = "flight-dock";
+    dock.className = "quiet-dock";
     dock.setAttribute("aria-label", "页面导航");
     dock.style.setProperty("--dock-index", "0");
     dock.innerHTML = `
-      <i class="flight-dock-cursor" aria-hidden="true"></i>
+      <i class="quiet-dock-cursor" aria-hidden="true"></i>
       ${routes.map((route) => `
         <button type="button" data-route="${route.key}" aria-label="前往${route.label}">
-          ${icons[route.key]}
           <span>${route.label}</span>
         </button>
       `).join("")}
@@ -72,61 +64,96 @@
   };
 
   const createWordmark = (topbar) => {
-    if (!topbar || topbar.querySelector(".flight-wordmark")) return;
+    if (!topbar || topbar.querySelector(".ledger-wordmark")) return;
+    topbar.querySelector(".flight-wordmark")?.remove();
     const wordmark = document.createElement("div");
-    wordmark.className = "flight-wordmark";
+    wordmark.className = "ledger-wordmark";
     wordmark.innerHTML = `
       <strong>冲了吗</strong>
-      <span><i aria-hidden="true"></i>记录仅存本机</span>
+      <span>私密记录 · 仅存本机</span>
     `;
     topbar.prepend(wordmark);
   };
 
-  const addZoneContract = (element, key) => {
-    if (!element) return;
-    element.dataset.flightZone = key;
-    if (key !== "today" && !element.id) element.id = `flight-${key}`;
-    zoneTargets.set(element, key);
-    if (observedZones.has(element)) return;
-    observedZones.add(element);
-    zoneObserver?.observe(element);
+  const revealObserver = "IntersectionObserver" in window
+    ? new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("quiet-visible");
+            revealObserver.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "0px 0px -8%", threshold: 0.08 },
+      )
+    : null;
+
+  const installReveal = (element) => {
+    if (!element || decorated.has(element)) return;
+    decorated.add(element);
+    element.classList.add("quiet-reveal");
+    const rect = element.getBoundingClientRect?.();
+    if (reducedMotion.matches || !revealObserver || !rect || rect.top < window.innerHeight * 0.9) {
+      element.classList.add("quiet-visible");
+    } else {
+      revealObserver.observe(element);
+    }
   };
 
-  const zoneObserver = "IntersectionObserver" in window
+  const setSectionContract = (element, key) => {
+    if (!element) return;
+    element.dataset.ledgerZone = key;
+    sectionRoutes.set(element, key);
+    if (observedSections.has(element)) return;
+    observedSections.add(element);
+    routeObserver?.observe(element);
+  };
+
+  const routeObserver = "IntersectionObserver" in window
     ? new IntersectionObserver(
         (entries) => {
           const visible = entries
             .filter((entry) => entry.isIntersecting)
             .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-          if (visible) setActiveRoute(zoneTargets.get(visible.target));
+          if (visible) setActiveRoute(sectionRoutes.get(visible.target));
         },
-        { rootMargin: "-18% 0px -54%", threshold: [0.08, 0.24, 0.48] },
+        { rootMargin: "-20% 0px -55%", threshold: [0.08, 0.28, 0.5] },
       )
     : null;
-
-  const decorateInteractiveRows = (element) => {
-    if (!element || decorated.has(element)) return;
-    decorated.add(element);
-    element.classList.add("flight-command-row");
-  };
 
   const scan = () => {
     const main = root.querySelector("main.shell");
     if (!main) return;
-    document.documentElement.dataset.visualSystem = "flight-recorder";
-    main.classList.add("flight-shell");
+    document.documentElement.dataset.visualSystem = "quiet-ledger";
+    main.classList.remove("flight-shell");
+    main.classList.add("quiet-shell");
+
     createDock();
     createWordmark(main.querySelector(".topbar"));
 
-    addZoneContract(main.querySelector("#top"), "today");
-    addZoneContract(main.querySelector(".stats"), "trend");
-    addZoneContract(main.querySelector("#recovery-vault"), "recovery");
-    addZoneContract(main.querySelector(".history"), "history");
+    const sections = [
+      [main.querySelector("#top"), "today"],
+      [main.querySelector(".stats"), "trend"],
+      [main.querySelector("#recovery-vault"), "recovery"],
+      [main.querySelector(".history"), "history"],
+    ];
+    sections.forEach(([element, key]) => {
+      setSectionContract(element, key);
+      installReveal(element);
+    });
 
-    decorateInteractiveRows(main.querySelector(".pwa-reminder-entry"));
-    decorateInteractiveRows(main.querySelector(".leaderboard-inline-entry"));
+    [
+      main.querySelector(".catchup"),
+      main.querySelector(".pwa-reminder-entry"),
+      main.querySelector(".leaderboard-inline-entry"),
+      main.querySelector(".month-summary"),
+      main.querySelector("footer"),
+    ].forEach(installReveal);
+
+    main.querySelector(".pwa-reminder-entry")?.classList.add("quiet-command-row");
+    main.querySelector(".leaderboard-inline-entry")?.classList.add("quiet-command-row");
     main.querySelector(".month-summary")?.setAttribute("role", "status");
-    main.querySelector(".history")?.setAttribute("aria-label", "打卡记录带");
+    main.querySelector(".history")?.setAttribute("aria-label", "打卡记录");
     main.querySelector(".stats")?.setAttribute("aria-label", "趋势总览");
   };
 

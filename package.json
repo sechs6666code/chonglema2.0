@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
     "test": "node tests/recovery-module.test.mjs && node tests/signal-system.test.mjs && node tests/flight-recorder.test.mjs && node tests/refine-motion.test.mjs && node tests/leaderboard-core.test.mjs && node tests/leaderboard-module.test.mjs && node tests/pwa-module.test.mjs && node tests/service-worker.test.mjs"
   },
   "devDependencies": {
