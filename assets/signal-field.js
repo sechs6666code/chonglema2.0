@@ -15,6 +15,7 @@
   const palette = {
     mint: [66, 245, 179],
     coral: [255, 116, 108],
+    ice: [106, 203, 255],
   };
   const fieldCanvas = document.createElement("canvas");
   const effectsCanvas = document.createElement("canvas");
@@ -67,8 +68,9 @@
 
   const syncThemePalette = () => {
     const styles = window.getComputedStyle(html);
-    palette.mint = parseHexColor(styles.getPropertyValue("--green"), darkScheme.matches ? [66, 245, 179] : [8, 122, 85]);
-    palette.coral = parseHexColor(styles.getPropertyValue("--red"), darkScheme.matches ? [255, 116, 108] : [184, 62, 56]);
+    palette.mint = parseHexColor(styles.getPropertyValue("--green"), darkScheme.matches ? [216, 255, 62] : [88, 121, 0]);
+    palette.coral = parseHexColor(styles.getPropertyValue("--red"), darkScheme.matches ? [255, 96, 71] : [184, 58, 42]);
+    palette.ice = parseHexColor(styles.getPropertyValue("--accent"), darkScheme.matches ? [106, 203, 255] : [0, 108, 158]);
     html.dataset.colorScheme = darkScheme.matches ? "dark" : "light";
   };
 
@@ -93,46 +95,68 @@
   const drawField = (time) => {
     if (!fieldContext) return;
     fieldContext.clearRect(0, 0, viewportWidth, viewportHeight);
-    const spacing = viewportWidth < 520 ? 28 : 34;
-    const columns = Math.ceil(viewportWidth / spacing) + 2;
-    const rows = Math.ceil(viewportHeight / spacing) + 2;
-    const drift = reducedMotion.matches ? 0 : time * 0.00016;
-    const scrollDrift = scrollPosition * 0.035;
-    const interactionRadius = viewportWidth < 520 ? 138 : 190;
-
     pointer.x += (pointer.targetX - pointer.x) * 0.075;
     pointer.y += (pointer.targetY - pointer.y) * 0.075;
     pointer.energy *= 0.94;
     scrollEnergy *= 0.91;
+    const staticTime = reducedMotion.matches ? 0 : time;
+    const interactionRadius = viewportWidth < 520 ? 170 : 230;
+    const lanes = [
+      { baseX: viewportWidth * 0.16, color: palette.mint, phase: 0.2, speed: 0.028 },
+      { baseX: viewportWidth * 0.5, color: palette.ice, phase: 2.4, speed: 0.019, quiet: true },
+      { baseX: viewportWidth * 0.84, color: palette.coral, phase: 4.8, speed: 0.024 },
+    ];
 
-    for (let row = -1; row < rows; row += 1) {
-      for (let column = -1; column < columns; column += 1) {
-        const baseX = column * spacing + (row % 2 ? spacing * 0.5 : 0);
-        const baseY = row * spacing - (scrollDrift % spacing);
-        const wave = reducedMotion.matches
-          ? 0
-          : Math.sin(drift * 7 + column * 0.48 + row * 0.31) * (1.2 + scrollEnergy * 2.4);
-        const dx = baseX - pointer.x;
-        const dy = baseY - pointer.y;
-        const distance = Math.hypot(dx, dy);
-        const influence = clamp(1 - distance / interactionRadius, 0, 1);
-        const push = influence * influence * (4 + pointer.energy * 8);
-        const x = baseX + (distance ? (dx / distance) * push : 0);
-        const y = baseY + wave + (distance ? (dy / distance) * push : 0);
-        const edgeFade = clamp(1 - Math.abs(x - viewportWidth / 2) / (viewportWidth * 0.82), 0.14, 1);
-        const alpha = (0.055 + influence * 0.22) * edgeFade;
-        const radius = 0.65 + influence * 1.12;
-        fieldContext.beginPath();
-        fieldContext.arc(x, y, radius, 0, Math.PI * 2);
-        fieldContext.fillStyle = rgba(palette.mint, alpha);
-        fieldContext.fill();
+    const lanePoint = (lane, y) => {
+      const distanceY = Math.abs(y - pointer.y);
+      const influence = clamp(1 - distanceY / interactionRadius, 0, 1);
+      const direction = pointer.x >= lane.baseX ? 1 : -1;
+      const wave = reducedMotion.matches
+        ? 0
+        : Math.sin(y * 0.012 + staticTime * 0.00042 + lane.phase) * (2.8 + scrollEnergy * 5.5);
+      const pull = influence * influence * direction * (2 + pointer.energy * 7);
+      return lane.baseX + wave + pull;
+    };
 
-        if (influence > 0.72 && !reducedMotion.matches) {
+    lanes.forEach((lane, laneIndex) => {
+      fieldContext.save();
+      fieldContext.beginPath();
+      for (let y = -20; y <= viewportHeight + 20; y += 12) {
+        const x = lanePoint(lane, y);
+        if (y === -20) fieldContext.moveTo(x, y);
+        else fieldContext.lineTo(x, y);
+      }
+      fieldContext.strokeStyle = rgba(lane.color, lane.quiet ? 0.055 : 0.095);
+      fieldContext.lineWidth = lane.quiet ? 0.7 : 1;
+      fieldContext.stroke();
+
+      const packetCount = lane.quiet ? 2 : 3;
+      for (let packet = 0; packet < packetCount; packet += 1) {
+        const travel = reducedMotion.matches
+          ? (packet + 1) / (packetCount + 1)
+          : ((staticTime * lane.speed + packet * viewportHeight * 0.38 + scrollPosition * 0.06) % (viewportHeight + 120)) / (viewportHeight + 120);
+        const y = travel * (viewportHeight + 120) - 60;
+        const x = lanePoint(lane, y);
+        const pulse = reducedMotion.matches ? 0.66 : 0.5 + Math.sin(staticTime * 0.004 + packet + laneIndex) * 0.18;
+        fieldContext.fillStyle = rgba(lane.color, lane.quiet ? 0.18 : 0.34 + pulse * 0.22);
+        fieldContext.fillRect(x - (lane.quiet ? 1 : 2), y - 5, lane.quiet ? 2 : 4, 10);
+        if (!lane.quiet) {
           fieldContext.beginPath();
-          fieldContext.arc(x, y, radius + 2.6, 0, Math.PI * 2);
-          fieldContext.fillStyle = rgba(palette.mint, influence * 0.035);
-          fieldContext.fill();
+          fieldContext.arc(x, y, 8 + pulse * 4, 0, Math.PI * 2);
+          fieldContext.strokeStyle = rgba(lane.color, 0.055 + pulse * 0.045);
+          fieldContext.lineWidth = 1;
+          fieldContext.stroke();
         }
+      }
+      fieldContext.restore();
+    });
+
+    const markerGap = viewportWidth < 520 ? 48 : 64;
+    for (let x = markerGap / 2; x < viewportWidth; x += markerGap) {
+      for (let y = markerGap / 2; y < viewportHeight; y += markerGap) {
+        if (Math.abs(x - viewportWidth / 2) < markerGap * 0.8) continue;
+        fieldContext.fillStyle = rgba(palette.ice, darkScheme.matches ? 0.035 : 0.025);
+        fieldContext.fillRect(x - 0.5, y - 0.5, 1, 1);
       }
     }
   };

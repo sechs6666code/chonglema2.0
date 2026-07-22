@@ -1,4 +1,4 @@
-const CACHE_NAME = "chonglema-shell-20260722-3";
+const CACHE_NAME = "chonglema-shell-20260722-4";
 const PRIVATE_DB = "chonglema-private-state";
 const PRIVATE_STORE = "state";
 const TODAY_STATE_KEY = "today-record";
@@ -17,8 +17,10 @@ const APP_SHELL = [
   "./assets/leaderboard-config.js",
   "./assets/pwa-module.css?v=20260717-1",
   "./assets/pwa-module.js?v=20260717-2",
-  "./assets/signal-system.css?v=20260722-3",
-  "./assets/signal-field.js?v=20260722-3",
+  "./assets/signal-system.css?v=20260722-4",
+  "./assets/signal-field.js?v=20260722-4",
+  "./assets/flight-recorder.css?v=20260722-1",
+  "./assets/flight-recorder.js?v=20260722-1",
   "./assets/pwa-icon-192.png",
   "./assets/pwa-icon-512.png",
 ];
