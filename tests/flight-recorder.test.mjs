@@ -52,6 +52,7 @@ assert.equal(window.document.querySelector(".flight-dock button.is-active").data
 assert.match(css, /--surface-radius:\s*12px/);
 assert.match(css, /--control-radius:\s*8px/);
 assert.match(css, /min-height:\s*44px/);
+assert.match(css, /\.month-switcher button\s*\{[^}]*min-height:\s*44px/s);
 assert.match(css, /prefers-color-scheme: light/);
 assert.match(css, /prefers-reduced-transparency: reduce/);
 

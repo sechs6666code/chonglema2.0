@@ -12,8 +12,8 @@ const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", i
 
 assert.match(html, /signal-system\.css\?v=20260722-4/);
 assert.match(html, /signal-field\.js\?v=20260722-4/);
-assert.match(html, /flight-recorder\.css\?v=20260722-2/);
-assert.match(html, /flight-recorder\.js\?v=20260722-2/);
+assert.match(html, /flight-recorder\.css\?v=20260722-3/);
+assert.match(html, /flight-recorder\.js\?v=20260722-3/);
 assert.doesNotMatch(html, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.doesNotMatch(serviceWorker, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.equal(packageJson.dependencies?.gsap, undefined);

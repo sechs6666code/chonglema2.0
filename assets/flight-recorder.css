@@ -831,8 +831,10 @@ body::after {
 }
 
 .month-switcher button {
-  min-width: 34px;
-  min-height: 34px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--control-radius);
   color: var(--text-soft);
   background: transparent;
@@ -840,7 +842,8 @@ body::after {
 }
 
 .month-switcher .month-current {
-  min-width: 48px;
+  width: auto;
+  min-width: 52px;
   background: var(--surface-strong);
 }
 
