@@ -1238,10 +1238,10 @@ html.rb-motion-ready .rb-reveal.rb-visible {
     --muted-strong: #3f4838;
     --line: rgba(44, 57, 31, 0.16);
     --line-strong: rgba(44, 57, 31, 0.3);
-    --green: #587900;
+    --green: #506f00;
     --green-deep: #466200;
-    --green-soft: rgba(88, 121, 0, 0.1);
-    --green-faint: rgba(88, 121, 0, 0.05);
+    --green-soft: rgba(80, 111, 0, 0.1);
+    --green-faint: rgba(80, 111, 0, 0.05);
     --red: #b83a2a;
     --red-deep: #94291e;
     --red-soft: rgba(184, 58, 42, 0.09);

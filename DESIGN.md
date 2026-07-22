@@ -18,7 +18,7 @@ colors:
   day-raised: "#E8ECE1"
   day-text: "#151810"
   day-muted: "#56604C"
-  day-steady: "#587900"
+  day-steady: "#506F00"
   day-release: "#B83A2A"
   day-channel: "#006C9E"
 typography:
@@ -93,7 +93,7 @@ Operate。第一成功标准是几秒内完成打卡；第二是快速理解趋�
 - **Day Canvas `#EEF0E8`**：低眩光浅色背景。
 - **Day Surface `#F9FAF5`**：主要表面。
 - **Day Ink `#151810`**：主文字。
-- **Day Steady `#587900`** 与 **Day Release `#B83A2A`**：为白天可读性专门校准，不能直接沿用夜间荧光色。
+- **Day Steady `#506F00`** 与 **Day Release `#B83A2A`**：为白天可读性专门校准，不能直接沿用夜间荧光色。
 - **Day Channel `#006C9E`**：辅助信道。
 
 ### State Lock

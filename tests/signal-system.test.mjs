@@ -12,8 +12,8 @@ const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", i
 
 assert.match(html, /signal-system\.css\?v=20260722-4/);
 assert.match(html, /signal-field\.js\?v=20260722-4/);
-assert.match(html, /flight-recorder\.css\?v=20260722-3/);
-assert.match(html, /flight-recorder\.js\?v=20260722-3/);
+assert.match(html, /flight-recorder\.css\?v=20260722-4/);
+assert.match(html, /flight-recorder\.js\?v=20260722-4/);
 assert.doesNotMatch(html, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.doesNotMatch(serviceWorker, /gsap(?:\.min|-motion)|Flip\.min|ScrollTrigger\.min/);
 assert.equal(packageJson.dependencies?.gsap, undefined);
@@ -45,7 +45,7 @@ assert.doesNotMatch(js, /gsap/i);
 assert.match(flightCss, /--green:\s*#d8ff3e/i);
 assert.match(flightCss, /--red:\s*#ff6047/i);
 assert.match(flightCss, /--accent:\s*#6acbff/i);
-assert.match(flightCss, /--green:\s*#587900/i);
+assert.match(flightCss, /--green:\s*#506f00/i);
 assert.match(flightCss, /\.flight-dock/);
 assert.match(flightCss, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(flightJs, /IntersectionObserver/);
