@@ -1263,6 +1263,18 @@ body:has(.leaderboard-overlay.is-open, .pwa-reminder-overlay.is-open, .history-s
   letter-spacing: -0.03em;
 }
 
+.leaderboard-header h2,
+.pwa-reminder-header h2 {
+  margin-top: 0;
+}
+
+.leaderboard-header > div > small,
+.leaderboard-profile-card > header small,
+.leaderboard-milestones > header small,
+.pwa-reminder-header > div > small {
+  display: none;
+}
+
 .leaderboard-close,
 .pwa-reminder-close,
 .history-panel header button,
@@ -1353,6 +1365,18 @@ body:has(.leaderboard-overlay.is-open, .pwa-reminder-overlay.is-open, .history-s
   opacity: 1;
 }
 
+.pwa-time-field > span {
+  flex: none;
+  min-width: 2em;
+  white-space: nowrap;
+}
+
+.pwa-time-field input {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .pwa-reminder-primary,
 .pwa-install-card button,
 .leaderboard-save,
@@ -1378,6 +1402,85 @@ body:has(.leaderboard-overlay.is-open, .pwa-reminder-overlay.is-open, .history-s
 
 .history-actions button {
   min-height: 76px;
+}
+
+.leaderboard-podium-scene,
+.leaderboard-podium-scene[data-podium-tone="rush"] {
+  min-height: 0;
+  margin-top: 12px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--inner-radius);
+  background: var(--surface-raised);
+  box-shadow: none;
+  perspective: none;
+}
+
+.leaderboard-podium-scene .leaderboard-podium,
+.leaderboard-podium-scene .leaderboard-podium[data-podium-count="1"],
+.leaderboard-podium-scene .leaderboard-podium[data-podium-count="2"] {
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  align-items: stretch;
+  gap: 1px;
+  background: var(--line);
+  transform-style: flat;
+}
+
+.leaderboard-podium-scene .leaderboard-podium[data-podium-count="1"] {
+  grid-template-columns: 1fr;
+}
+
+.leaderboard-podium-scene .leaderboard-podium[data-podium-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.leaderboard-podium-scene .leaderboard-podium-card,
+.leaderboard-podium-scene .leaderboard-podium-card.rank-1,
+.leaderboard-podium-scene .leaderboard-podium-card.rank-2,
+.leaderboard-podium-scene .leaderboard-podium-card.rank-3 {
+  min-height: 116px;
+  padding: 16px 8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+  transform-style: flat;
+}
+
+.leaderboard-podium-scene .leaderboard-podium-card.rank-1 {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.leaderboard-podium-scene .leaderboard-podium-card > .leaderboard-podium-avatar,
+.leaderboard-podium-scene .leaderboard-podium-card.rank-1 > .leaderboard-podium-avatar {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  color: var(--text);
+  background: var(--surface-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.leaderboard-podium-card > .leaderboard-podium-rank {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.leaderboard-podium-horizon,
+.leaderboard-podium-beam,
+.leaderboard-podium-crown,
+.leaderboard-podium-plinth,
+.leaderboard-podium-card::after {
+  display: none !important;
 }
 
 .milestone-pop {
