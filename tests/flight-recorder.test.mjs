@@ -94,6 +94,8 @@ assert.match(css, /--accent-deep:\s*#0a84ff/);
 assert.match(css, /\.icon-house\s*\{\s*--icon:\s*url\("\.\/icons\/house\.svg"\)/);
 assert.match(css, /\.continuum-shell \.month-switcher button\s*\{[^}]*min-height:\s*44px/s);
 assert.match(css, /\.continuum-shell \.calendar-day\s*\{[^}]*min-height:\s*44px/s);
+assert.match(css, /\.continuum-shell \.pie-legend \[role="button"\]\s*\{[^}]*min-width:\s*44px[^}]*min-height:\s*44px/s);
+assert.match(css, /\.continuum-shell \.recovery-calibrate-button\s*\{[^}]*min-height:\s*44px/s);
 assert.match(css, /\.pwa-time-field\s*>\s*span\s*\{[^}]*white-space:\s*nowrap/s);
 assert.match(css, /\.leaderboard-podium-horizon[\s\S]*display:\s*none\s*!important/);
 assert.match(css, /prefers-color-scheme:\s*light/);
@@ -103,6 +105,7 @@ assert.doesNotMatch(css, /neon|scanline|cyberpunk/i);
 
 assert.match(html, /assets\/gsap\.min\.js/);
 assert.match(html, /assets\/ScrollTrigger\.min\.js/);
+assert.match(html, /assets\/flight-recorder\.css\?v=20260726-2/);
 assert.match(html, /assets\/flight-recorder\.js\?v=20260726-1/);
 assert.ok(html.indexOf("gsap.min.js") < html.indexOf("flight-recorder.js"));
 assert.ok(html.indexOf("ScrollTrigger.min.js") < html.indexOf("flight-recorder.js"));
