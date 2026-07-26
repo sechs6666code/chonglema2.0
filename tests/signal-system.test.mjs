@@ -7,7 +7,7 @@ const js = fs.readFileSync(new URL("../assets/flight-recorder.js", import.meta.u
 const serviceWorker = fs.readFileSync(new URL("../sw.js", import.meta.url), "utf8");
 const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
 
-assert.match(html, /flight-recorder\.css\?v=20260726-1/);
+assert.match(html, /flight-recorder\.css\?v=20260726-2/);
 assert.match(html, /flight-recorder\.js\?v=20260726-1/);
 assert.match(html, /gsap\.min\.js\?v=3\.15\.0/);
 assert.match(html, /ScrollTrigger\.min\.js\?v=3\.15\.0/);

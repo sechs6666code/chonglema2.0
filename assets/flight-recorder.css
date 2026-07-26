@@ -981,6 +981,13 @@ button:disabled {
   gap: 5px;
 }
 
+.continuum-shell .pie-legend [role="button"] {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  padding-inline: 10px;
+}
+
 .continuum-shell .pie-legend i {
   width: 5px;
   height: 5px;
@@ -1124,6 +1131,10 @@ button:disabled {
   border-radius: var(--radius-control);
   background: var(--surface-raised);
   box-shadow: none;
+}
+
+.continuum-shell .recovery-calibrate-button {
+  min-height: 44px;
 }
 
 .continuum-shell .recovery-disclaimer {
