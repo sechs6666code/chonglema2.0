@@ -1,4 +1,4 @@
-const CACHE_NAME = "chonglema-shell-20260722-10";
+const CACHE_NAME = "chonglema-shell-20260726-1";
 const PRIVATE_DB = "chonglema-private-state";
 const PRIVATE_STORE = "state";
 const TODAY_STATE_KEY = "today-record";
@@ -17,8 +17,25 @@ const APP_SHELL = [
   "./assets/leaderboard-config.js",
   "./assets/pwa-module.css?v=20260717-1",
   "./assets/pwa-module.js?v=20260717-2",
-  "./assets/flight-recorder.css?v=20260722-10",
-  "./assets/flight-recorder.js?v=20260722-10",
+  "./assets/gsap.min.js?v=3.15.0",
+  "./assets/ScrollTrigger.min.js?v=3.15.0",
+  "./assets/flight-recorder.css?v=20260726-1",
+  "./assets/flight-recorder.js?v=20260726-1",
+  "./assets/fonts/inter-variable.woff2",
+  "./assets/icons/house.svg",
+  "./assets/icons/chart.svg",
+  "./assets/icons/droplets.svg",
+  "./assets/icons/calendar.svg",
+  "./assets/icons/settings.svg",
+  "./assets/icons/trophy.svg",
+  "./assets/icons/bell.svg",
+  "./assets/icons/check.svg",
+  "./assets/icons/x.svg",
+  "./assets/icons/shield.svg",
+  "./assets/icons/chevron-right.svg",
+  "./assets/icons/ellipsis.svg",
+  "./assets/icons/lock.svg",
+  "./assets/icons/history.svg",
   "./assets/pwa-icon-192.png",
   "./assets/pwa-icon-512.png",
 ];

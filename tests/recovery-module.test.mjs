@@ -29,6 +29,14 @@ window.matchMedia = () => ({
 });
 window.navigator.vibrate = () => true;
 window.localStorage.setItem("did-you-v1", JSON.stringify({ [dateKey]: "yes" }));
+window.localStorage.setItem(
+  "chonglema-recovery-v1",
+  JSON.stringify({
+    timestamp: release.getTime(),
+    source: "manual",
+    dateKey,
+  })
+);
 window.eval(source);
 
 await new Promise((resolve) => window.setTimeout(resolve, 40));
